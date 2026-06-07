@@ -1,5 +1,12 @@
-const WP_API = process.env.NEXT_PUBLIC_WP_API || "http://212.129.239.58/wp-json/wp/v2";
-const INQUIRY_API = process.env.NEXT_PUBLIC_INQUIRY_API || "http://212.129.239.58/wp-json/inquiry/v1/submit";
+const WP_API = process.env.NEXT_PUBLIC_WP_API || "http://212.129.239.58/?rest_route=/wp/v2";
+const INQUIRY_API = process.env.NEXT_PUBLIC_INQUIRY_API || "http://212.129.239.58/?rest_route=/inquiry/v1/submit";
+
+// Helper: build URL with rest_route format (& for additional params)
+function apiUrl(path: string, params?: URLSearchParams): string {
+  const sep = WP_API.includes("rest_route=") ? "&" : "?";
+  const paramStr = params ? sep + params.toString() : "";
+  return `${WP_API}/${path}${paramStr}`;
+}
 
 export interface WPProduct {
   id: number;
@@ -46,7 +53,7 @@ export async function fetchProducts(categoryId?: number): Promise<WPProduct[]> {
   const params = new URLSearchParams({ _embed: "true", per_page: "50" });
   if (categoryId) params.set("product_category", String(categoryId));
 
-  const res = await fetch(`${WP_API}/products?${params}`, {
+  const res = await fetch(apiUrl("products", params), {
     next: { revalidate: 3600 },
   });
   if (!res.ok) return [];
@@ -54,7 +61,8 @@ export async function fetchProducts(categoryId?: number): Promise<WPProduct[]> {
 }
 
 export async function fetchProduct(slug: string): Promise<WPProduct | null> {
-  const res = await fetch(`${WP_API}/products?slug=${slug}&_embed=true`, {
+  const params = new URLSearchParams({ slug, _embed: "true" });
+  const res = await fetch(apiUrl("products", params), {
     next: { revalidate: 3600 },
   });
   if (!res.ok) return null;
@@ -66,7 +74,7 @@ export async function fetchCategories(parentId?: number): Promise<WPCategory[]> 
   const params = new URLSearchParams({ per_page: "50", orderby: "name", order: "asc" });
   if (parentId !== undefined) params.set("parent", String(parentId));
 
-  const res = await fetch(`${WP_API}/product-categories?${params}`, {
+  const res = await fetch(apiUrl("product-categories", params), {
     next: { revalidate: 86400 },
   });
   if (!res.ok) return [];
@@ -77,7 +85,7 @@ export async function fetchPosts(categoryId?: number): Promise<WPProduct[]> {
   const params = new URLSearchParams({ _embed: "true", per_page: "6" });
   if (categoryId) params.set("categories", String(categoryId));
 
-  const res = await fetch(`${WP_API}/posts?${params}`, {
+  const res = await fetch(apiUrl("posts", params), {
     next: { revalidate: 3600 },
   });
   if (!res.ok) return [];

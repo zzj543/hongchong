@@ -46,5 +46,5 @@ body {
 
 /* Product card */
 .product-card {
-  @apply group bg-white border border-border rounded-lg overflow-hidden hover:border-accent/30 transition-colors;
+  @apply bg-white border border-border rounded-lg overflow-hidden hover:border-accent/30 transition-colors;
 }
