@@ -1,5 +1,3 @@
-import ProductGrid from "@/components/ProductGrid";
-
 interface Product {
   id: number;
   slug: string;
