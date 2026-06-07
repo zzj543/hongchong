@@ -1,0 +1,945 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>玻璃制品外贸独立站需求分析与系统设计</title>
+    <style>
+      :root {
+        --ink: #182026;
+        --muted: #5d6974;
+        --line: #d8e1e8;
+        --paper: #f7f9fb;
+        --white: #ffffff;
+        --teal: #0f766e;
+        --blue: #2563eb;
+        --amber: #b45309;
+        --rose: #be123c;
+        --green: #15803d;
+        --shadow: 0 18px 44px rgba(24, 32, 38, 0.09);
+        --radius: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          Inter,
+          "Segoe UI",
+          "Microsoft YaHei",
+          Arial,
+          sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+        line-height: 1.6;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(14px);
+      }
+
+      .nav {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 64px;
+        gap: 20px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .brand-mark {
+        width: 34px;
+        height: 34px;
+        border: 2px solid #9ecbd0;
+        border-bottom-color: var(--teal);
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        color: var(--teal);
+        font-size: 18px;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+      }
+
+      .hero {
+        min-height: 620px;
+        background:
+          linear-gradient(90deg, rgba(247, 249, 251, 0.98) 0%, rgba(247, 249, 251, 0.9) 48%, rgba(232, 244, 246, 0.86) 100%),
+          radial-gradient(circle at 80% 24%, rgba(37, 99, 235, 0.16), transparent 32%),
+          #f7f9fb;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+      }
+
+      .hero-inner {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: minmax(0, 1.02fr) minmax(320px, 0.98fr);
+        gap: 42px;
+        align-items: center;
+        padding: 54px 0;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--teal);
+        background: #e5f5f3;
+        border: 1px solid #b7ded9;
+        border-radius: 999px;
+        padding: 7px 12px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.15;
+        margin: 0;
+        letter-spacing: 0;
+      }
+
+      h1 {
+        margin-top: 18px;
+        font-size: clamp(38px, 7vw, 76px);
+        max-width: 820px;
+      }
+
+      .lead {
+        color: var(--muted);
+        font-size: 18px;
+        max-width: 700px;
+        margin: 20px 0 28px;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 16px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        text-decoration: none;
+        font-weight: 750;
+        font-size: 14px;
+      }
+
+      .button.primary {
+        background: var(--teal);
+        color: var(--white);
+      }
+
+      .button.secondary {
+        background: var(--white);
+        border-color: var(--line);
+        color: var(--ink);
+      }
+
+      .glass-visual {
+        min-height: 430px;
+        position: relative;
+        display: grid;
+        align-items: end;
+        padding: 34px;
+        overflow: hidden;
+      }
+
+      .shelf {
+        height: 18px;
+        background: #bfcad2;
+        border-radius: 8px;
+        box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.7);
+      }
+
+      .ware-row {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 18px;
+        align-items: end;
+      }
+
+      .ware {
+        position: relative;
+        min-width: 44px;
+        margin: 0 auto;
+        background: linear-gradient(110deg, rgba(255, 255, 255, 0.96), rgba(169, 220, 226, 0.42));
+        border: 2px solid rgba(42, 123, 132, 0.32);
+        box-shadow:
+          inset 10px 0 16px rgba(255, 255, 255, 0.8),
+          inset -10px 0 14px rgba(15, 118, 110, 0.12),
+          0 22px 32px rgba(24, 32, 38, 0.12);
+      }
+
+      .ware::before {
+        content: "";
+        position: absolute;
+        left: 12%;
+        right: 12%;
+        top: 10px;
+        height: 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.78);
+      }
+
+      .cup {
+        width: 76px;
+        height: 150px;
+        border-radius: 4px 4px 26px 26px;
+      }
+
+      .jar {
+        width: 92px;
+        height: 176px;
+        border-radius: 8px 8px 18px 18px;
+      }
+
+      .jar::after {
+        content: "";
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        top: -22px;
+        height: 28px;
+        border: 2px solid rgba(42, 123, 132, 0.32);
+        border-bottom: 0;
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 8px 8px 2px 2px;
+      }
+
+      .bottle {
+        width: 70px;
+        height: 210px;
+        border-radius: 22px 22px 12px 12px;
+      }
+
+      .bottle::after {
+        content: "";
+        position: absolute;
+        left: 20px;
+        top: -54px;
+        width: 26px;
+        height: 64px;
+        background: linear-gradient(110deg, rgba(255, 255, 255, 0.96), rgba(169, 220, 226, 0.48));
+        border: 2px solid rgba(42, 123, 132, 0.32);
+        border-bottom: 0;
+        border-radius: 8px 8px 2px 2px;
+      }
+
+      .candle {
+        width: 88px;
+        height: 118px;
+        border-radius: 4px 4px 16px 16px;
+        background: linear-gradient(110deg, rgba(255, 255, 255, 0.92), rgba(250, 221, 169, 0.58));
+        border-color: rgba(180, 83, 9, 0.3);
+      }
+
+      .section {
+        padding: 72px 0;
+        border-bottom: 1px solid var(--line);
+        background: var(--white);
+      }
+
+      .section.alt {
+        background: var(--paper);
+      }
+
+      .wrap {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 28px;
+        margin-bottom: 28px;
+      }
+
+      h2 {
+        font-size: clamp(26px, 4vw, 42px);
+      }
+
+      .section-desc {
+        max-width: 520px;
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        gap: 18px;
+      }
+
+      .grid.cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .grid.cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .card {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 20px;
+        min-height: 100%;
+        box-shadow: 0 1px 0 rgba(24, 32, 38, 0.02);
+      }
+
+      .alt .card {
+        background: #ffffff;
+      }
+
+      .tag {
+        display: inline-flex;
+        min-height: 26px;
+        align-items: center;
+        border-radius: 999px;
+        padding: 0 9px;
+        font-size: 12px;
+        font-weight: 750;
+        background: #eef2ff;
+        color: #3730a3;
+      }
+
+      .tag.green {
+        background: #e7f7ed;
+        color: var(--green);
+      }
+
+      .tag.amber {
+        background: #fff2dc;
+        color: var(--amber);
+      }
+
+      .tag.rose {
+        background: #ffe7ed;
+        color: var(--rose);
+      }
+
+      .card h3 {
+        margin-top: 14px;
+        font-size: 20px;
+      }
+
+      .card p,
+      .card li {
+        color: var(--muted);
+      }
+
+      .card ul {
+        padding-left: 18px;
+        margin: 12px 0 0;
+      }
+
+      .journey {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .step {
+        background: #ffffff;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 18px;
+        min-height: 164px;
+        position: relative;
+      }
+
+      .step-number {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--ink);
+        color: var(--white);
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+      }
+
+      .step h3 {
+        margin-top: 14px;
+        font-size: 18px;
+      }
+
+      .step p {
+        color: var(--muted);
+        margin-bottom: 0;
+      }
+
+      .matrix {
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: #ffffff;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+      }
+
+      th,
+      td {
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+
+      th {
+        background: #edf4f6;
+        font-size: 13px;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .architecture {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .lane {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: #ffffff;
+        padding: 18px;
+      }
+
+      .lane-title {
+        font-weight: 800;
+        margin-bottom: 12px;
+      }
+
+      .node {
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--blue);
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 10px;
+        background: #fbfdff;
+      }
+
+      .node.teal {
+        border-left-color: var(--teal);
+      }
+
+      .node.amber {
+        border-left-color: var(--amber);
+      }
+
+      .node.rose {
+        border-left-color: var(--rose);
+      }
+
+      .timeline {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .phase {
+        background: #ffffff;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 22px;
+      }
+
+      .phase strong {
+        display: block;
+        font-size: 22px;
+      }
+
+      .footer {
+        padding: 34px 0;
+        background: var(--ink);
+        color: #e7edf2;
+      }
+
+      .footer a {
+        color: #b8e3e0;
+      }
+
+      .refs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 18px;
+        font-size: 13px;
+      }
+
+      @media (max-width: 940px) {
+        .hero-inner,
+        .architecture,
+        .timeline,
+        .grid.cols-3,
+        .grid.cols-4 {
+          grid-template-columns: 1fr;
+        }
+
+        .journey {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .hero {
+          min-height: auto;
+        }
+
+        .glass-visual {
+          min-height: 320px;
+          padding: 18px;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .nav {
+          align-items: flex-start;
+          flex-direction: column;
+          padding: 14px 0;
+        }
+
+        .nav-links {
+          justify-content: flex-start;
+        }
+
+        .journey {
+          grid-template-columns: 1fr;
+        }
+
+        .ware-row {
+          gap: 8px;
+        }
+
+        .cup {
+          width: 50px;
+          height: 108px;
+        }
+
+        .jar {
+          width: 58px;
+          height: 128px;
+        }
+
+        .bottle {
+          width: 48px;
+          height: 154px;
+        }
+
+        .bottle::after {
+          left: 13px;
+          width: 18px;
+          height: 44px;
+          top: -38px;
+        }
+
+        .candle {
+          width: 58px;
+          height: 88px;
+        }
+
+        .matrix {
+          overflow: visible;
+          border: 0;
+          background: transparent;
+        }
+
+        table {
+          min-width: 0;
+        }
+
+        thead {
+          display: none;
+        }
+
+        tbody,
+        tr,
+        td {
+          display: block;
+          width: 100%;
+        }
+
+        tr {
+          margin-bottom: 12px;
+          border: 1px solid var(--line);
+          border-radius: 8px;
+          background: #ffffff;
+          overflow: hidden;
+        }
+
+        td {
+          border-bottom: 1px solid var(--line);
+          padding: 12px 14px;
+        }
+
+        td::before {
+          content: attr(data-label);
+          display: block;
+          color: var(--muted);
+          font-size: 12px;
+          font-weight: 750;
+          margin-bottom: 4px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <nav class="nav" aria-label="站点导航">
+        <div class="brand">
+          <div class="brand-mark">G</div>
+          <span>Glass Export Site Blueprint</span>
+        </div>
+        <div class="nav-links">
+          <a href="#scope">范围</a>
+          <a href="#product">产品页</a>
+          <a href="#blog">Blogs</a>
+          <a href="#architecture">架构</a>
+          <a href="#roadmap">路线图</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-inner">
+          <div>
+            <span class="eyebrow">询盘型外贸独立站 / 无支付 / 无在线下单</span>
+            <h1>玻璃制品外贸独立站需求分析与系统设计</h1>
+            <p class="lead">
+              面向海外采购商、进口商、品牌方和电商卖家，网站核心不是结账，而是用产品、工厂能力、认证资料、博客内容和 RFQ 表单把高质量询盘带给销售团队。
+            </p>
+            <div class="hero-actions">
+              <a class="button primary" href="#scope">查看需求范围</a>
+              <a class="button secondary" href="#architecture">查看系统架构</a>
+            </div>
+          </div>
+          <div class="glass-visual" aria-label="玻璃制品视觉展示">
+            <div class="ware-row">
+              <div class="ware cup"></div>
+              <div class="ware jar"></div>
+              <div class="ware bottle"></div>
+              <div class="ware candle"></div>
+              <div class="ware cup"></div>
+            </div>
+            <div class="shelf"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="scope">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <span class="tag green">Business Scope</span>
+              <h2>网站定位与边界</h2>
+            </div>
+            <p class="section-desc">这版方案按纯询盘获客站设计，避免客户误以为可以直接购买，同时保留后续 CRM、邮件营销、多语言和内容 SEO 的扩展空间。</p>
+          </div>
+          <div class="grid cols-4">
+            <article class="card">
+              <span class="tag green">要做</span>
+              <h3>产品展示</h3>
+              <p>分类、筛选、规格、材质、容量、包装、MOQ、交期、资料下载和相关产品。</p>
+            </article>
+            <article class="card">
+              <span class="tag green">要做</span>
+              <h3>询盘转化</h3>
+              <p>Get Quote、Request Sample、Ask for Customization，收集采购意向并通知销售。</p>
+            </article>
+            <article class="card">
+              <span class="tag green">要做</span>
+              <h3>Blogs 获客</h3>
+              <p>用采购指南、材质工艺、包装运输、认证测试等内容覆盖长尾搜索需求。</p>
+            </article>
+            <article class="card">
+              <span class="tag rose">不做</span>
+              <h3>交易系统</h3>
+              <p>不做购物车、支付、在线订单、订单状态、实时库存和实时运费。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section alt">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <span class="tag amber">Buyer Journey</span>
+              <h2>海外采购商路径</h2>
+            </div>
+            <p class="section-desc">从搜索进入，到产品判断，再到 RFQ 表单，网站每一步都围绕“减少采购疑虑、提高询盘完整度”。</p>
+          </div>
+          <div class="journey">
+            <article class="step">
+              <div class="step-number">1</div>
+              <h3>搜索进入</h3>
+              <p>Google、博客、展会二维码、广告或社媒进入。</p>
+            </article>
+            <article class="step">
+              <div class="step-number">2</div>
+              <h3>品类筛选</h3>
+              <p>按用途、材质、容量、工艺和定制能力找到目标产品。</p>
+            </article>
+            <article class="step">
+              <div class="step-number">3</div>
+              <h3>规格判断</h3>
+              <p>查看 MOQ、包装、尺寸、证书、交期和相关资料。</p>
+            </article>
+            <article class="step">
+              <div class="step-number">4</div>
+              <h3>发起询盘</h3>
+              <p>提交数量、国家、定制需求、附件和联系方式。</p>
+            </article>
+            <article class="step">
+              <div class="step-number">5</div>
+              <h3>销售跟进</h3>
+              <p>销售报价、寄样、确认包装和线下签约成交。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="product">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <span class="tag">Product UX</span>
+              <h2>产品页面设计</h2>
+            </div>
+            <p class="section-desc">产品页承担展示和询盘，不承担下单。所有交易动作放到线下销售流程中。</p>
+          </div>
+          <div class="matrix">
+            <table>
+              <thead>
+                <tr>
+                  <th>区域</th>
+                  <th>内容</th>
+                  <th>设计目的</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="区域">首屏</td>
+                  <td data-label="内容">产品图、名称、SKU、材质、容量、MOQ、Get Quote</td>
+                  <td data-label="设计目的">让客户 10 秒内判断是否继续看</td>
+                </tr>
+                <tr>
+                  <td data-label="区域">规格</td>
+                  <td data-label="内容">尺寸、重量、口径、容量、颜色、包装、装箱量</td>
+                  <td data-label="设计目的">减少反复邮件询问，提高询盘质量</td>
+                </tr>
+                <tr>
+                  <td data-label="区域">定制</td>
+                  <td data-label="内容">logo、喷涂、磨砂、贴花、烫金、包装盒</td>
+                  <td data-label="设计目的">突出 OEM/ODM 能力</td>
+                </tr>
+                <tr>
+                  <td data-label="区域">资料</td>
+                  <td data-label="内容">规格书、测试报告、目录、包装说明</td>
+                  <td data-label="设计目的">建立采购信任，支持销售转化</td>
+                </tr>
+                <tr>
+                  <td data-label="区域">推荐</td>
+                  <td data-label="内容">相关产品、相关博客、案例</td>
+                  <td data-label="设计目的">提升站内浏览深度和询盘概率</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="section alt" id="blog">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <span class="tag green">Blogs</span>
+              <h2>博客内容模块</h2>
+            </div>
+            <p class="section-desc">Blogs 是这个站的长期流量引擎。内容不要只写公司新闻，要围绕海外采购问题写可搜索、可转化的文章。</p>
+          </div>
+          <div class="grid cols-3">
+            <article class="card">
+              <span class="tag green">Buying Guides</span>
+              <h3>采购指南</h3>
+              <ul>
+                <li>How to choose glass jars for food packaging</li>
+                <li>MOQ and lead time for custom glass cups</li>
+                <li>Private label glass packaging checklist</li>
+              </ul>
+            </article>
+            <article class="card">
+              <span class="tag amber">Process</span>
+              <h3>材质与工艺</h3>
+              <ul>
+                <li>Borosilicate vs soda lime glass</li>
+                <li>Silk screen vs decal printing</li>
+                <li>Frosted, colored and electroplated glass</li>
+              </ul>
+            </article>
+            <article class="card">
+              <span class="tag">Logistics</span>
+              <h3>包装运输</h3>
+              <ul>
+                <li>How to reduce breakage in shipping</li>
+                <li>Export carton and pallet options</li>
+                <li>Glassware container loading guide</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <span class="tag rose">Admin</span>
+              <h2>后台与询盘管理</h2>
+            </div>
+            <p class="section-desc">后台重点服务运营和销售：内容可维护，询盘可分配，数据可导出，后续可接 CRM。</p>
+          </div>
+          <div class="grid cols-3">
+            <article class="card">
+              <h3>CMS 内容管理</h3>
+              <p>产品、分类、博客、案例、证书、下载资料、导航、页脚和 SEO 字段统一管理。</p>
+            </article>
+            <article class="card">
+              <h3>RFQ 询盘中心</h3>
+              <p>记录客户信息、目标国家、采购数量、意向产品、附件、来源页面、跟进状态和销售备注。</p>
+            </article>
+            <article class="card">
+              <h3>销售集成</h3>
+              <p>新询盘邮件提醒，可导出 CSV/Excel，也可通过 Webhook 推送到 HubSpot、Zoho、飞书或企微。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section alt" id="architecture">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <span class="tag">System Design</span>
+              <h2>推荐系统架构</h2>
+            </div>
+            <p class="section-desc">不用电商引擎做重交易，采用 SEO 前台 + Headless CMS + Inquiry API 的轻量结构。</p>
+          </div>
+          <div class="architecture">
+            <div class="lane">
+              <div class="lane-title">访问层</div>
+              <div class="node teal">CDN / WAF / HTTPS</div>
+              <div class="node teal">英文站，多语言可扩展</div>
+              <div class="node teal">产品页、分类页、博客页、RFQ 页</div>
+            </div>
+            <div class="lane">
+              <div class="lane-title">内容与业务层</div>
+              <div class="node">Headless CMS</div>
+              <div class="node">Product / Blog / Cases / Assets</div>
+              <div class="node">Inquiry API + Form Protection</div>
+            </div>
+            <div class="lane">
+              <div class="lane-title">数据与销售层</div>
+              <div class="node amber">Database</div>
+              <div class="node amber">Email Notification</div>
+              <div class="node amber">CRM / Spreadsheet / Webhook</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="roadmap">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <span class="tag green">Roadmap</span>
+              <h2>实施路线图</h2>
+            </div>
+            <p class="section-desc">建议先用 MVP 打通产品、博客和询盘闭环，再逐步叠加多语言、CRM 和更细的销售漏斗。</p>
+          </div>
+          <div class="timeline">
+            <article class="phase">
+              <span class="tag green">Phase 1</span>
+              <strong>MVP / 4-6 周</strong>
+              <p>首页、产品中心、产品详情、Blogs、About、RFQ、后台 CMS、基础 SEO、询盘邮件通知。</p>
+            </article>
+            <article class="phase">
+              <span class="tag amber">Phase 2</span>
+              <strong>增长增强</strong>
+              <p>多语言、下载中心、高级筛选、案例库、CRM 集成、展会落地页和内容专题页。</p>
+            </article>
+            <article class="phase">
+              <span class="tag">Phase 3</span>
+              <strong>销售效率</strong>
+              <p>询盘评分、样品申请流程、销售漏斗分析、客户门户和邮件自动化。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap">
+        <p>参考基线：</p>
+        <div class="refs">
+          <a href="https://developers.google.com/search/docs/specialty/ecommerce/designing-a-url-structure-for-ecommerce-sites">Google 电商 URL</a>
+          <a href="https://developers.google.com/search/docs/appearance/structured-data/product">Google Product 结构化数据</a>
+          <a href="https://developers.google.com/search/docs/specialty/international/localized-versions">Google hreflang</a>
+          <a href="https://owasp.org/www-project-top-ten/">OWASP Top 10</a>
+          <a href="https://food.ec.europa.eu/food-safety/chemical-safety/food-contact-materials_en">EU 食品接触材料</a>
+          <a href="https://www.fda.gov/food/environmental-contaminants-food/lead-food-and-foodwares">FDA Lead in Foodwares</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
