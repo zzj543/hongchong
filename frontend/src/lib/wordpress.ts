@@ -50,7 +50,7 @@ export interface WPCategory {
 }
 
 export async function fetchProducts(categoryId?: number): Promise<WPProduct[]> {
-  const params = new URLSearchParams({ _embed: "true", per_page: "50" });
+  const params = new URLSearchParams({ _embed: "true", per_page: "100" });
   if (categoryId) params.set("product_category", String(categoryId));
 
   const res = await fetch(apiUrl("products", params), {
