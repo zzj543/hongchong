@@ -39,8 +39,7 @@ export default function ProductList() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_WP_API || "http://212.129.239.58/?rest_route=/wp/v2";
-    fetch(`${apiUrl}/products&_embed=true&per_page=24&_t=${Date.now()}`)
+    fetch(`/api/products?_embed=true&per_page=24&_t=${Date.now()}`)
       .then((r) => r.json())
       .then((data) => {
         setProducts(data);
