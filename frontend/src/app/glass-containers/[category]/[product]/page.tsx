@@ -2,6 +2,8 @@ import Link from "next/link";
 import { fetchProduct, getImageUrl, getProductCategory, getSeoTitle, getSeoDescription } from "@/lib/wordpress";
 import type { Metadata } from "next";
 
+export const dynamic = 'force-dynamic';
+
 type Props = { params: Promise<{ category: string; product: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

@@ -1,5 +1,7 @@
-const WP_API = process.env.NEXT_PUBLIC_WP_API || "http://212.129.239.58/?rest_route=/wp/v2";
-const INQUIRY_API = process.env.NEXT_PUBLIC_INQUIRY_API || "http://212.129.239.58/?rest_route=/inquiry/v1/submit";
+// Server-side: use internal URL to avoid Nginx proxy loop
+// Client-side: use NEXT_PUBLIC_WP_API for browser fetches
+const WP_API = process.env.WP_API_URL || process.env.NEXT_PUBLIC_WP_API || "http://127.0.0.1:8080/?rest_route=/wp/v2";
+const INQUIRY_API = process.env.INQUIRY_API_URL || process.env.NEXT_PUBLIC_INQUIRY_API || "http://127.0.0.1:8080/?rest_route=/inquiry/v1/submit";
 
 // Helper: build URL with rest_route format (& for additional params)
 function apiUrl(path: string, params?: URLSearchParams): string {
@@ -50,12 +52,11 @@ export interface WPCategory {
 }
 
 export async function fetchProducts(categoryId?: number): Promise<WPProduct[]> {
-  const params = new URLSearchParams({ _embed: "true", per_page: "100" });
+  const params = new URLSearchParams({ _embed: "true", per_page: "24" });
   if (categoryId) params.set("product_category", String(categoryId));
 
-  const res = await fetch(apiUrl("products", params), {
-    next: { revalidate: 3600 },
-  });
+  const url = apiUrl("products", params) + "&_t=" + Date.now();
+  const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) return [];
   return res.json();
 }
@@ -75,7 +76,7 @@ export async function fetchCategories(parentId?: number): Promise<WPCategory[]> 
   if (parentId !== undefined) params.set("parent", String(parentId));
 
   const res = await fetch(apiUrl("product-categories", params), {
-    next: { revalidate: 86400 },
+    cache: "no-store",
   });
   if (!res.ok) return [];
   return res.json();

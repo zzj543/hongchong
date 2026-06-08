@@ -3,6 +3,8 @@ import { fetchProducts, fetchCategories, getImageUrl, getProductCategory } from 
 import ProductGrid from "@/components/ProductGrid";
 import type { Metadata } from "next";
 
+export const dynamic = 'force-dynamic';
+
 type Props = { params: Promise<{ category: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -14,10 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export async function generateStaticParams() {
-  const categories = await fetchCategories(0);
-  return categories.map((cat) => ({ category: cat.slug }));
-}
+export const dynamicParams = true;
 
 export default async function CategoryPage({ params }: Props) {
   const { category } = await params;
