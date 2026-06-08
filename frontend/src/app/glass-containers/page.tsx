@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { fetchProducts, fetchCategories, getImageUrl, getProductCategory } from "@/lib/wordpress";
+import { fetchCategories } from "@/lib/wordpress";
 import type { Metadata } from "next";
-import ProductGrid from "@/components/ProductGrid";
+import ProductList from "@/components/ProductList";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -14,16 +14,6 @@ export const metadata: Metadata = {
 
 export default async function ProductsPage() {
   const categories = await fetchCategories(0);
-  const products = await fetchProducts();
-
-  // Group products by category
-  const catMap = new Map<string, typeof products>();
-  for (const p of products) {
-    const cat = getProductCategory(p);
-    const key = cat?.slug || "uncategorized";
-    if (!catMap.has(key)) catMap.set(key, []);
-    catMap.get(key)!.push(p);
-  }
 
   return (
     <>
@@ -59,17 +49,8 @@ export default async function ProductsPage() {
             </div>
           )}
 
-          {/* Products Grid */}
-          {products.length > 0 ? (
-            <ProductGrid products={products} />
-          ) : (
-            <div className="text-center py-24">
-              <p className="text-text-muted text-lg">Products will appear here once added in WordPress.</p>
-              <p className="mt-2 text-sm text-text-muted">
-                Add products via WP Admin → Products → Add New.
-              </p>
-            </div>
-          )}
+          {/* Client-side Products Grid */}
+          <ProductList />
         </div>
       </section>
 
